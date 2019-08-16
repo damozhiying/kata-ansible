@@ -1,0 +1,7 @@
+---
+- name: install cata container
+  hosts: kata_nodes
+  remote_user: root
+  become: yes
+  roles:
+    - install

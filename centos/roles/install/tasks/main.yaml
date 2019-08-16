@@ -1,0 +1,49 @@
+---
+- name: install yum untils
+  yum:
+    name: yum-utils
+    state: present
+
+- name: install kata container repo
+  shell: >
+    yum-config-manager --add-repo "http://download.opensuse.org/repositories/home:/katacontainers:/releases:/{{ arch }}:/{{ branch }}/CentOS_{{ version }}/home:katacontainers:releases:{{ arch }}:{{ branch }}.repo"
+
+- name: install kata-runtime
+  yum:
+    name: kata-runtime
+    state: present
+
+- name: install kata-proxy
+  yum:
+    name: kata-proxy
+    state: present
+
+- name: install kata-shim
+  yum:
+    name: kata-shim
+    state: present
+
+- name: install docker-ce repo
+  shell: yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+
+- name: install latest docker-ce
+  yum:
+    name: docker-ce
+    state: latest
+
+- name: check config file
+  file:
+    path: /etc/docker
+    state: directory
+
+- name: config docker to use kata-runtime
+  copy:
+    src: "{{ role_path }}/templates/daemon.json"
+    dest: /etc/docker/daemon.json
+
+- name: restart docker
+  systemd:
+    name: docker
+    enabled: yes
+    daemon_reload: yes
+    state: restarted
